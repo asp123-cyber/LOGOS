@@ -1,4 +1,5 @@
 # LOGOS — Intellectual Publishing Community
+# Site Demo : https://asp123-cyber.github.io/LOGOS/
 
 > **Think clearly. Write honestly. Disagree thoughtfully.**
 
