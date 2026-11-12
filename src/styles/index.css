@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-paper-50 text-ink-700 font-sans;
+  }
+
+  .dark body,
+  body.dark {
+    @apply bg-ink-900 text-ink-100;
+  }
+
+  ::selection {
+    @apply bg-cobalt-200/40 text-ink-800;
+  }
+
+  .dark ::selection {
+    @apply bg-cobalt-500/30 text-paper-100;
+  }
+
+  /* Focus states */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-cobalt-500;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 
+           bg-cobalt-500 text-white font-medium text-sm rounded-md
+           hover:bg-cobalt-600 active:bg-cobalt-700
+           focus-visible:outline-cobalt-500
+           transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 
+           bg-transparent text-ink-600 font-medium text-sm rounded-md
+           border border-ink-200
+           hover:bg-ink-50 active:bg-ink-100
+           transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .dark .btn-secondary {
+    @apply text-ink-200 border-ink-600 hover:bg-ink-800 active:bg-ink-700;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2
+           bg-transparent text-ink-500 font-medium text-sm rounded-md
+           hover:bg-ink-100 active:bg-ink-200
+           transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .dark .btn-ghost {
+    @apply text-ink-300 hover:bg-ink-800;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 
+           bg-red-600 text-white font-medium text-sm rounded-md
+           hover:bg-red-700 active:bg-red-800
+           transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2.5 text-sm bg-white border border-ink-200 rounded-md
+           text-ink-700 placeholder:text-ink-300
+           focus:border-cobalt-400 focus:ring-1 focus:ring-cobalt-400
+           transition-colors duration-150;
+  }
+
+  .dark .input-field {
+    @apply bg-ink-800 border-ink-600 text-ink-100 placeholder:text-ink-500
+           focus:border-cobalt-400;
+  }
+
+  .card {
+    @apply bg-white border border-ink-100 rounded-lg overflow-hidden
+           transition-shadow duration-200 hover:shadow-md;
+  }
+
+  .dark .card {
+    @apply bg-ink-800 border-ink-700;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-medium
+           rounded-full bg-cobalt-50 text-cobalt-600 border border-cobalt-200;
+  }
+
+  .dark .badge {
+    @apply bg-cobalt-900/30 text-cobalt-300 border-cobalt-700;
+  }
+
+  /* Reading progress bar */
+  .reading-progress {
+    @apply fixed top-0 left-0 h-0.5 bg-cobalt-500 z-50 transition-all duration-100;
+  }
+
+  /* Prose overrides for article content */
+  .article-content {
+    @apply prose prose-logos max-w-article mx-auto;
+  }
+
+  .dark .article-content {
+    @apply prose-logos-dark;
+  }
+
+  /* TipTap editor styles */
+  .tiptap-editor .ProseMirror {
+    @apply min-h-[400px] px-0 py-4 outline-none;
+  }
+
+  .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+    @apply text-ink-300 float-left h-0 pointer-events-none;
+    content: attr(data-placeholder);
+  }
+
+  .tiptap-editor .ProseMirror:focus {
+    @apply outline-none;
+  }
+}
