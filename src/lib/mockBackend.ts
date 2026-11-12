@@ -117,7 +117,25 @@ export const mockAuth = {
 
   async signInWithPassword({ email }: { email: string; password?: string }) {
     const profiles = getStorage<Profile[]>(STORAGE_KEYS.PROFILES, INITIAL_PROFILES);
-    let matchedProfile = profiles.find((p) => p.username === email || p.id === email);
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Match admin credentials explicitly
+    let matchedProfile = profiles.find((p) => {
+      if (
+        cleanEmail === 'admin@logos.org' ||
+        cleanEmail === 'admin' ||
+        cleanEmail === 'eleanor@logos.org' ||
+        cleanEmail === 'eleanor_vance' ||
+        cleanEmail === 'eleanor_vance@logos.org'
+      ) {
+        return p.role === 'admin' || p.username === 'eleanor_vance';
+      }
+      return (
+        p.username.toLowerCase() === cleanEmail ||
+        p.id === cleanEmail ||
+        p.username.toLowerCase() === cleanEmail.split('@')[0]
+      );
+    });
 
     if (!matchedProfile) {
       // Create user on the fly if not found
