@@ -13,6 +13,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, displayName: string, inviteToken?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
@@ -102,6 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [fetchProfile]);
 
+  const signInWithGoogle = async () => {
+    if (supabase.auth.signInWithGoogle) {
+      const res = await supabase.auth.signInWithGoogle();
+      return { error: res.error };
+    }
+    return { error: null };
+  };
+
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error?.message ?? null };
@@ -143,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ ...state, signIn, signUp, signOut, resetPassword, refreshProfile }}
+      value={{ ...state, signIn, signInWithGoogle, signUp, signOut, resetPassword, refreshProfile }}
     >
       {children}
     </AuthContext.Provider>
