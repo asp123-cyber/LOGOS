@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import type { Profile, ArticleWithAuthor } from '../lib/database.types';
 import { formatDateShort } from '../lib/utils';
 import Avatar from '../components/ui/Avatar';
+import ArticleActions from '../components/article/ArticleActions';
 import ArticleCard from '../components/article/ArticleCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ReportModal from '../components/ui/ReportModal';
@@ -216,7 +217,13 @@ export default function ProfilePage() {
         {articles.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {articles.map((art) => (
-              <ArticleCard key={art.id} article={art} />
+              <div key={art.id}>
+                <ArticleCard article={art} />
+                <ArticleActions
+                  article={art}
+                  onDeleted={() => setArticles(current => current.filter(item => item.id !== art.id))}
+                />
+              </div>
             ))}
           </div>
         ) : (
