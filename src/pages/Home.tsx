@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Clock, Compass } from 'lucide-react';
+import { ArrowRight, PenLine, Clock, Compass } from 'lucide-react';
 import { useArticles } from '../hooks/useArticles';
 import { CATEGORIES, readingTime, extractTextFromContent, formatDate } from '../lib/utils';
 import ArticleCard from '../components/article/ArticleCard';
@@ -19,19 +19,17 @@ export default function Home() {
   const latestArticles = articles.slice(1, 7);
 
   return (
-    <div className="space-y-16 py-4 animate-fade-in font-sans">
-      {/* Editorial Header / Intro */}
-      <section className="text-center max-w-3xl mx-auto pt-6 pb-2">
-        <span className="badge mb-3 inline-flex items-center gap-1.5 py-1 px-3">
-          <Sparkles className="w-3.5 h-3.5" /> An Intellectual Publishing Community
-        </span>
-        <h1 className="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-ink-900 dark:text-paper-100 mb-4 leading-tight">
-          Think clearly. Write honestly. Disagree thoughtfully.
-        </h1>
-        <p className="text-base sm:text-lg text-ink-500 dark:text-ink-300 font-sans max-w-xl mx-auto leading-relaxed">
-          A dedicated sanctuary for long-form essays, logical inquiry, scientific exposition, and
-          substantive dialogue.
-        </p>
+    <div className="space-y-10 py-4 animate-fade-in font-sans">
+      <section className="journal-hero">
+        <img className="journal-hero-image" src={`${import.meta.env.BASE_URL}library.jpg`} alt="" fetchPriority="high" />
+        <div className="journal-hero-copy">
+          <h1 className="font-serif font-bold tracking-tight text-5xl sm:text-6xl lg:text-7xl">The reading room</h1>
+          <p className="max-w-md text-base sm:text-lg leading-relaxed text-white/85">Essays on science, philosophy, and the ideas that shape how we see the world.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link className="rounded-md bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100" to="/explore">Explore essays</Link>
+            <Link className="inline-flex items-center gap-2 rounded-md border border-white/50 px-5 py-3 text-sm font-semibold hover:bg-white/10" to="/write"><PenLine size={16} /> Write an essay</Link>
+          </div>
+        </div>
       </section>
 
       {/* Loading state */}
@@ -53,10 +51,10 @@ export default function Home() {
       {featured && (
         <section className="card p-6 sm:p-10 border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 shadow-sm hover:border-cobalt-300 dark:hover:border-cobalt-700 transition-all">
           <div className="grid lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7 space-y-4">
+            <div className={featured.cover_image_url ? "lg:col-span-7 space-y-4" : "lg:col-span-12 space-y-4"}>
               <div className="flex items-center gap-2">
                 <span className="badge">{featured.category}</span>
-                <span className="text-xs text-ink-400">Featured Inquiry</span>
+                <span className="text-xs font-semibold uppercase tracking-widest text-ink-500 dark:text-ink-300">Featured essay</span>
               </div>
               <Link to={`/article/${featured.slug}`}>
                 <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ink-900 dark:text-paper-100 hover:text-cobalt-600 dark:hover:text-cobalt-400 transition-colors leading-tight">
@@ -90,7 +88,7 @@ export default function Home() {
                 <div className="flex items-center gap-4">
                   <span className="text-xs text-ink-400 inline-flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
-                    {readingTime(featured.excerpt || extractTextFromContent(featured.content))} min
+                    {readingTime(extractTextFromContent(featured.content) || featured.excerpt)} min
                     read
                   </span>
                   <Link
@@ -154,7 +152,7 @@ export default function Home() {
             to="/explore"
             className="text-xs font-semibold text-cobalt-600 dark:text-cobalt-400 hover:underline flex items-center gap-1"
           >
-            View all archive <ArrowRight className="w-3 h-3" />
+            Browse the archive <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 

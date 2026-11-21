@@ -117,34 +117,36 @@ export default function Community() {
           Community Feed
         </h1>
         <p className="text-sm text-ink-500 dark:text-ink-400">
-          Stay attuned to thinkers, researchers, and writers whose perspectives you follow.
+          Read the latest essays from across the community or catch up with writers you follow.
         </p>
 
         {/* Tab switch */}
-        <div className="flex items-center gap-3 mt-6">
+        <div className="inline-flex flex-wrap items-center gap-1 mt-6 p-1 rounded-xl border border-ink-200 dark:border-ink-700">
           {user && (
             <button
+              aria-pressed={tab === 'following'}
               onClick={() => setTab('following')}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 tab === 'following'
                   ? 'bg-cobalt-600 text-white'
                   : 'bg-paper-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
-              Writers You Follow
+              Following
             </button>
           )}
           <button
+            aria-pressed={tab === 'discover'}
             onClick={() => setTab('discover')}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               tab === 'discover'
                 ? 'bg-cobalt-600 text-white'
                 : 'bg-paper-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300'
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
-            Global Dispatch
+            Discover
           </button>
         </div>
       </header>
@@ -163,7 +165,7 @@ export default function Community() {
           title="Your following list is quiet"
           description="You are not following any authors yet. Explore published essays and follow writers to receive their latest inquiries here."
           action={{
-            label: 'Switch to Global Dispatch',
+            label: 'Switch to Discover',
             onClick: () => setTab('discover'),
           }}
         />

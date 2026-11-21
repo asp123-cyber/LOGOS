@@ -30,16 +30,26 @@ import { supabase } from '../lib/supabase';
 import { CATEGORIES, slugify, validateImageFile } from '../lib/utils';
 import { renderTipTapJson } from '../lib/renderContent';
 import type { Article as DbArticle } from '../lib/database.types';
+import { saveOwnedArticle } from '../lib/ownedArticle';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 export default function Write() {
+  const { user } = useAuth();
+  const [params] = useSearchParams();
+  const target = params.get('edit');
+  return <WritingStudio key={JSON.stringify([user?.id, target])} editArticleId={target} />;
+}
+
+function WritingStudio({ editArticleId }: { editArticleId: string | null }) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const editArticleId = searchParams.get('edit');
+
 
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
-  const [articleId, setArticleId] = useState<string | null>(editArticleId);
+  const [articleId, setArticleId] = useState<string | null>(null);
+  const [savedSlug, setSavedSlug] = useState('');
+  const [publishedAt, setPublishedAt] = useState<string | null>(null);
+  const [published, setPublished] = useState(false);
   const [title, setTitle] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [category, setCategory] = useState<string>('Ideas');
@@ -106,10 +116,13 @@ export default function Write() {
         const article = data as unknown as DbArticle;
 
         if (article.author_id !== user?.id) {
-          setStatusMsg({ type: 'error', text: 'You are not authorized to edit this draft.' });
+          setStatusMsg({ type: 'error', text: 'You are not authorized to edit this essay.' });
           return;
         }
 
+        setSavedSlug(article.slug);
+        setPublished(article.status === 'published');
+        setPublishedAt(article.published_at);
         setTitle(article.title);
         setExcerpt(article.excerpt);
         setCategory(article.category);
@@ -120,6 +133,8 @@ export default function Write() {
         if (editor && article.content) {
           editor.commands.setContent(article.content);
         }
+      } catch {
+        setStatusMsg({ type: 'error', text: 'Could not open this essay.' });
       } finally {
         setLoadingInitial(false);
       }
@@ -247,10 +262,9 @@ export default function Write() {
       const rawSlug = slugify(title);
 
       // Suffix random characters on new articles to avoid collision
-      const slug = articleId ? rawSlug : `${rawSlug}-${Math.random().toString(36).substring(2, 6)}`;
+      const slug = savedSlug || `${rawSlug}-${Math.random().toString(36).substring(2, 6)}`;
 
       const payload = {
-        author_id: user.id,
         title: title.trim(),
         slug,
         excerpt: excerpt.trim(),
@@ -259,22 +273,19 @@ export default function Write() {
         category,
         tags,
         status: publish ? ('published' as const) : ('draft' as const),
-        ...(publish ? { published_at: new Date().toISOString() } : {}),
+        ...(publish && !publishedAt ? { published_at: new Date().toISOString() } : {}),
       };
 
       if (articleId) {
-        const { error } = await supabase
-          .from('articles')
-          .update(payload as any)
-          .eq('id', articleId);
-        if (error) throw error;
+        await saveOwnedArticle(articleId, payload);
       } else {
         const { data, error } = await supabase
           .from('articles')
-          .insert(payload as any)
+          .insert({ ...payload, author_id: user.id })
           .select('id')
           .single();
         if (error) throw error;
+        setSavedSlug(slug);
         if (data) setArticleId((data as { id: string }).id);
       }
 
@@ -284,7 +295,7 @@ export default function Write() {
       });
 
       if (publish) {
-        setTimeout(() => navigate(`/article/${slug}`), 1200);
+        navigate(`/article/${slug}`, { replace: true });
       }
     } catch (err) {
       setStatusMsg({
@@ -300,6 +311,10 @@ export default function Write() {
     return <LoadingSpinner message="Preparing Writing Studio..." />;
   }
 
+  if (editArticleId && !articleId) {
+    return <div className="py-12 text-center" role="alert"><p>{statusMsg?.text}</p><Link className="btn-secondary mt-4" to="/explore">Back to essays</Link></div>;
+  }
+
   return (
     <div className="max-w-4xl mx-auto py-6 font-sans">
       {/* Studio Top Bar */}
@@ -313,7 +328,7 @@ export default function Write() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Mode Switcher */}
           <div className="flex rounded-lg bg-paper-100 dark:bg-ink-800 p-1 text-xs">
             <button
@@ -338,20 +353,20 @@ export default function Write() {
             </button>
           </div>
 
-          <button
+          {!published && <button
             onClick={() => handleSave(false)}
             disabled={saving}
             className="btn-secondary text-xs py-2 px-3.5"
           >
             {saving ? 'Saving...' : 'Save Draft'}
-          </button>
+          </button>}
 
           <button
             onClick={() => handleSave(true)}
             disabled={saving}
             className="btn-primary text-xs py-2 px-4"
           >
-            {saving ? 'Publishing...' : 'Publish'}
+            {saving ? 'Saving...' : published ? 'Save changes' : 'Publish'}
           </button>
         </div>
       </div>

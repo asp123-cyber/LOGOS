@@ -140,3 +140,41 @@
     @apply outline-none;
   }
 }
+
+.journal-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #18252b;
+  color: white;
+}
+
+.journal-hero-image,
+.journal-hero::after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  object-fit: cover;
+  object-position: center 55%;
+}
+
+.journal-hero::after {
+  content: "";
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(12, 24, 30, .97), rgba(12, 24, 30, .83) 43%, rgba(12, 24, 30, .18));
+}
+
+.journal-hero-copy {
+  display: grid;
+  gap: 1.35rem;
+  padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4.5rem);
+}
+
+@media (max-width: 640px) {
+  .journal-hero::after {
+    background: linear-gradient(90deg, rgba(12, 24, 30, .92), rgba(12, 24, 30, .75));
+  }
+}

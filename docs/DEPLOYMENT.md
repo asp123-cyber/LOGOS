@@ -31,3 +31,21 @@
 - Test invite token expiry/reuse rules.
 - Test mobile layout and GitHub Pages deep links.
 - Check browser network requests and repository history for secrets.
+
+### Author permissions for published essays
+
+The editor and delete action use Firestore transactions. Enforce the same ownership check in the deployed Firestore rules. Merge these write conditions into the existing article match, preserving read access and any narrowly scoped moderator rule for hiding a reported essay.
+
+```firestore
+match /articles/{articleId} {
+  allow create: if request.auth != null
+    && request.resource.data.author_id == request.auth.uid;
+  allow update: if request.auth != null
+    && resource.data.author_id == request.auth.uid
+    && request.resource.data.author_id == resource.data.author_id;
+  allow delete: if request.auth != null
+    && resource.data.author_id == request.auth.uid;
+}
+```
+
+Remove overlapping broad write grants on articles when merging. Firestore allows a request if any matching rule grants access. Initialize sample essays through a trusted administrator when these rules are active.

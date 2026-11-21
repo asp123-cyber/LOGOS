@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Heart,
   Bookmark,
@@ -11,6 +11,7 @@ import {
   Edit2,
   Check,
 } from 'lucide-react';
+import { saveOwnedArticle } from '../lib/ownedArticle';
 import { useArticles } from '../hooks/useArticles';
 import { useSocial } from '../hooks/useSocial';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,6 +25,9 @@ import ReportModal from '../components/ui/ReportModal';
 import ArticleCard from '../components/article/ArticleCard';
 
 export default function Article() {
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const { slug } = useParams<{ slug: string }>();
   const { user, profile } = useAuth();
   const { fetchArticleBySlug } = useArticles();
@@ -140,6 +144,20 @@ export default function Article() {
       })
       .finally(() => setLoading(false));
   }, [slug, user, fetchArticleBySlug, hasLiked, hasBookmarked]);
+
+  async function handleDelete() {
+    if (!article || user?.id !== article.author_id || deleting) return;
+    if (!window.confirm(`Permanently delete "${article.title}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await saveOwnedArticle(article.id, null);
+      navigate('/explore', { replace: true });
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Could not delete this essay. Please try again.');
+      setDeleting(false);
+    }
+  }
 
   const handleToggleLike = async () => {
     if (!article || !user) return;
@@ -275,6 +293,13 @@ export default function Article() {
               {minutes} min read
             </span>
           </div>
+          {user?.id === article.author_id && (
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <Link to={`/write?edit=${article.id}`} className="btn-secondary"><Edit2 size={15} /> Edit essay</Link>
+              <button type="button" disabled={deleting} onClick={handleDelete} className="btn-secondary text-red-700 dark:text-red-300"><Trash2 size={15} /> {deleting ? 'Deleting...' : 'Delete essay'}</button>
+              {deleteError && <p role="alert" className="w-full text-sm text-red-700 dark:text-red-300">{deleteError}</p>}
+            </div>
+          )}
         </header>
 
         {/* Cover image */}
